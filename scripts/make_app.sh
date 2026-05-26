@@ -48,18 +48,45 @@ IDENTITY=$(security find-identity -v -p codesigning 2>/dev/null \
     | head -1 \
     | awk -F'"' '{print $2}' || true)
 
+EXT_ENTITLEMENTS="Resources/PeekyQuickLook.entitlements"
+
+# Hardened Runtime + ad-hoc + sandbox 조합은 pkd가 거부하는 경우가 있어 ad-hoc에선 runtime 생략.
+# Apple Development 인증서는 runtime 유지.
 if [ -n "$IDENTITY" ]; then
     echo "▶ Signing with: $IDENTITY"
-    codesign --force --sign "$IDENTITY" --options runtime "$APPEX_DIR"
-    codesign --force --sign "$IDENTITY" --options runtime --deep "$APP"
+    codesign --force --sign "$IDENTITY" --options runtime \
+        --entitlements "$EXT_ENTITLEMENTS" \
+        "$APPEX_DIR"
+    codesign --force --sign "$IDENTITY" --options runtime "$APP"
 else
-    echo "▶ Apple Development 인증서 없음 → ad-hoc 서명 (배포 시 xattr 제거 필요)"
-    codesign --force --sign - "$APPEX_DIR"
-    codesign --force --sign - --deep "$APP"
+    echo "▶ Apple Development 인증서 없음 → ad-hoc 서명 (runtime 생략, sandbox만)"
+    codesign --force --sign - --entitlements "$EXT_ENTITLEMENTS" "$APPEX_DIR"
+    codesign --force --sign - "$APP"
+fi
+
+# 서명 직후 entitlement 검증 — pkd가 "must be sandboxed"로 거부 못하게 사전 확인.
+echo ""
+echo "▶ Entitlements verification:"
+ENT_CHECK=$(codesign -d --entitlements - "$APPEX_DIR" 2>&1 | grep -c "com.apple.security.app-sandbox")
+if [ "$ENT_CHECK" -ge 1 ]; then
+    echo "   ✓ sandbox entitlement embedded"
+else
+    echo "   ✗ sandbox entitlement MISSING — 익스텐션이 pluginkit에 등록되지 않음!"
+    echo "   (Resources/PeekyQuickLook.entitlements 파일 확인 필요)"
+    exit 1
 fi
 
 echo "✅ Built: $(pwd)/$APP"
 echo ""
 echo "실행:        open $(pwd)/$APP"
-echo "설치:        mv $APP /Applications/"
+echo ""
+echo "설치 (반드시 ditto + 설치 위치 재서명 — cp -R은 코드 서명 메타데이터 손실 가능):"
+echo "   rm -rf /Applications/$APP"
+echo "   ditto $APP /Applications/$APP"
+echo "   codesign --force --sign - --entitlements $EXT_ENTITLEMENTS \\"
+echo "       /Applications/$APP/Contents/PlugIns/$APPEX"
+echo "   codesign --force --sign - /Applications/$APP"
+echo "   pluginkit -a /Applications/$APP/Contents/PlugIns/$APPEX"
+echo "   qlmanage -r && killall Finder"
+echo ""
 echo "익스텐션 활성화: 시스템 설정 → 일반 → 로그인 항목 및 확장 프로그램 → Quick Look → Peeky 켜기"

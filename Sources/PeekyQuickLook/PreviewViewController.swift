@@ -5,7 +5,10 @@ import PeekyCore
 
 /// Quick Look이 미리보기를 요청할 때 macOS가 인스턴스화하는 principal class.
 /// Info.plist의 NSExtensionPrincipalClass = "PeekyQuickLook.PreviewViewController"에 매칭된다.
-@objc(PreviewViewController)
+///
+/// 주의: `@objc(PreviewViewController)` rename 금지. Swift runtime이 `Module.ClassName` 형태로
+/// NSClassFromString 매칭을 처리하는데, 명시적 rename을 하면 모듈 prefix가 사라져 시스템이
+/// 클래스를 못 찾아 익스텐션 초기화 실패 → pluginkit 등록 거부.
 final class PreviewViewController: NSViewController, QLPreviewingController {
     override func loadView() {
         view = NSView(frame: NSRect(x: 0, y: 0, width: 600, height: 800))

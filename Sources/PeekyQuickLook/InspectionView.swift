@@ -147,8 +147,7 @@ struct InspectionView: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(cert.commonName)
                     .font(.callout)
-                    .textSelection(.enabled)
-                if let org = cert.organization {
+                    if let org = cert.organization {
                     Text(org)
                         .font(.caption)
                         .foregroundStyle(.secondary)
@@ -206,8 +205,7 @@ struct InspectionView: View {
                     Text(entitlementValueDescription(entitlements.raw[key]))
                         .font(.caption2.monospaced())
                         .foregroundStyle(.secondary)
-                        .textSelection(.enabled)
-                        .lineLimit(4)
+                                .lineLimit(4)
                 }
                 .padding(.vertical, 2)
             }
@@ -245,8 +243,7 @@ struct InspectionView: View {
                 Text(plugin.bundleIdentifier ?? "—")
                     .font(.caption.monospaced())
                     .foregroundStyle(.secondary)
-                    .textSelection(.enabled)
-            }
+                }
             Spacer()
         }
     }
@@ -341,7 +338,6 @@ struct InspectionView: View {
                 .frame(width: 120, alignment: .leading)
             Text(value?.isEmpty == false ? value! : "—")
                 .font(mono ? .callout.monospaced() : .callout)
-                .textSelection(.enabled)
                 .lineLimit(2)
             Spacer()
         }
