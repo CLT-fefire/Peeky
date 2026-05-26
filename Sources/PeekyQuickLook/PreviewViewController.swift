@@ -37,8 +37,8 @@ final class PreviewViewController: NSViewController, QLPreviewingController {
         case "xcarchive":
             return Inspection(source: .xcarchive(url), warnings: ["xcarchive 지원은 Phase 7에서 구현 예정"])
         case "mobileprovision", "provisionprofile":
-            let profile = try ProfileDecoder.decode(at: url)
-            return Inspection(source: .profile(url), profile: profile)
+            let (profile, entitlements) = try ProfileDecoder.decode(at: url)
+            return Inspection(source: .profile(url), profile: profile, entitlements: entitlements)
         default:
             throw PeekyError.unsupportedSource(url: url)
         }
