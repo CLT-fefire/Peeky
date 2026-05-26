@@ -23,15 +23,11 @@ final class PreviewViewController: NSViewController, QLPreviewingController {
         }
     }
 
-    /// Phase 0 스켈레톤 — 파일 확장자 분기만. Phase 2부터 실제 검사 로직 연결.
+    /// 파일 확장자별 검사 디스패치.
     private static func inspect(url: URL) async throws -> Inspection {
         switch url.pathExtension.lowercased() {
-        case "app":
-            let bundle = try BundleInspector.inspectAppBundle(at: url)
-            return Inspection(source: .app(url), bundle: bundle)
-        case "appex":
-            let bundle = try BundleInspector.inspectAppBundle(at: url)
-            return Inspection(source: .appex(url), bundle: bundle)
+        case "app", "appex":
+            return try BundleInspector.inspect(bundleAt: url)
         case "ipa":
             return Inspection(source: .ipa(url), warnings: ["IPA 지원은 Phase 6에서 구현 예정"])
         case "xcarchive":

@@ -15,6 +15,12 @@ struct InspectionView: View {
                 if let profile = inspection.profile {
                     profileCard(profile)
                 }
+                if let entitlements = inspection.entitlements {
+                    entitlementsCard(entitlements)
+                }
+                if !inspection.plugins.isEmpty {
+                    pluginsCard(inspection.plugins)
+                }
                 if !inspection.warnings.isEmpty {
                     warningsCard
                 }
@@ -89,6 +95,96 @@ struct InspectionView: View {
                 }
             }
             .padding(.vertical, 6)
+        }
+    }
+
+    private func entitlementsCard(_ entitlements: Entitlements) -> some View {
+        GroupBox("Entitlements (\(entitlements.raw.count))") {
+            VStack(alignment: .leading, spacing: 4) {
+                ForEach(entitlements.raw.keys.sorted(), id: \.self) { key in
+                    HStack(alignment: .firstTextBaseline) {
+                        Text(key)
+                            .font(.caption.monospaced())
+                            .foregroundStyle(.secondary)
+                            .frame(width: 240, alignment: .leading)
+                            .lineLimit(1)
+                            .truncationMode(.middle)
+                        Text(entitlementValueDescription(entitlements.raw[key]))
+                            .font(.caption.monospaced())
+                            .textSelection(.enabled)
+                            .lineLimit(3)
+                        Spacer()
+                    }
+                }
+            }
+            .padding(.vertical, 6)
+        }
+    }
+
+    private func pluginsCard(_ plugins: [BundleInfo]) -> some View {
+        GroupBox("Embedded Extensions (\(plugins.count))") {
+            VStack(alignment: .leading, spacing: 10) {
+                ForEach(plugins, id: \.url) { plugin in
+                    pluginRow(plugin)
+                }
+            }
+            .padding(.vertical, 6)
+        }
+    }
+
+    private func pluginRow(_ plugin: BundleInfo) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            HStack(alignment: .firstTextBaseline) {
+                Text(plugin.url.deletingPathExtension().lastPathComponent)
+                    .font(.callout.weight(.medium))
+                if let kind = plugin.extensionPointIdentifier {
+                    Text(humanizeExtensionPoint(kind))
+                        .font(.caption)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(.tint.opacity(0.15), in: Capsule())
+                }
+            }
+            Text(plugin.bundleIdentifier ?? "—")
+                .font(.caption.monospaced())
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    private func humanizeExtensionPoint(_ identifier: String) -> String {
+        switch identifier {
+        case "com.apple.share-services": return "Share"
+        case "com.apple.widget-extension": return "Today Widget"
+        case "com.apple.widgetkit-extension": return "WidgetKit"
+        case "com.apple.usernotifications.service": return "Notification Service"
+        case "com.apple.usernotifications.content-extension": return "Notification Content"
+        case "com.apple.intents-service": return "Intents"
+        case "com.apple.intents-ui-service": return "Intents UI"
+        case "com.apple.keyboard-service": return "Keyboard"
+        case "com.apple.spotlight.import": return "Spotlight Import"
+        case "com.apple.quicklook.preview": return "Quick Look"
+        case "com.apple.quicklook.thumbnail": return "QL Thumbnail"
+        case "com.apple.fileprovider-nonui": return "File Provider"
+        case "com.apple.fileprovider-actionsui": return "File Provider UI"
+        case "com.apple.networkextension.packet-tunnel": return "Network Extension"
+        case "com.apple.broadcast-services-upload": return "Broadcast Upload"
+        case "com.apple.message-payload-provider": return "Message Payload"
+        case "com.apple.callkit.call-directory": return "Call Directory"
+        case "com.apple.authentication-services-credential-provider-ui": return "Credential Provider"
+        default:
+            return identifier.components(separatedBy: ".").last ?? identifier
+        }
+    }
+
+    private func entitlementValueDescription(_ value: Any?) -> String {
+        switch value {
+        case let s as String: return "\"\(s)\""
+        case let b as Bool: return b ? "true" : "false"
+        case let arr as [Any]: return "[\(arr.count) items]"
+        case let dict as [String: Any]: return "{\(dict.count) keys}"
+        case let n as NSNumber: return "\(n)"
+        case nil: return "—"
+        default: return String(describing: value!)
         }
     }
 
