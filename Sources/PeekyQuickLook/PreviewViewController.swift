@@ -31,7 +31,7 @@ final class PreviewViewController: NSViewController, QLPreviewingController {
         case "ipa":
             return try IPAInspector.inspect(ipaAt: url)
         case "xcarchive":
-            return Inspection(source: .xcarchive(url), warnings: ["xcarchive 지원은 Phase 7에서 구현 예정"])
+            return try XCArchiveInspector.inspect(archiveAt: url)
         case "mobileprovision", "provisionprofile":
             let (profile, entitlements) = try ProfileDecoder.decode(at: url)
             return Inspection(source: .profile(url), profile: profile, entitlements: entitlements)

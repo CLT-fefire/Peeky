@@ -9,6 +9,9 @@ struct InspectionView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 title
+                if let archive = inspection.archive {
+                    archiveCard(archive)
+                }
                 if let bundle = inspection.bundle {
                     bundleCard(bundle)
                 }
@@ -96,6 +99,21 @@ struct InspectionView: View {
                         .font(.callout)
                         .foregroundStyle(.secondary)
                 }
+            }
+            .padding(.vertical, 6)
+        }
+    }
+
+    private func archiveCard(_ archive: ArchiveInfo) -> some View {
+        GroupBox("Archive") {
+            VStack(alignment: .leading, spacing: 6) {
+                row("Scheme", archive.schemeName ?? archive.name)
+                row("Created", archive.creationDate.map { Self.dateFormatter.string(from: $0) })
+                row("Archive v.", archive.archiveVersion.map(String.init))
+                row("Signing Identity", archive.signingIdentity)
+                row("Team", archive.teamIdentifier)
+                row("App Path", archive.applicationPath)
+                row("dSYMs", "\(archive.dSYMCount)개")
             }
             .padding(.vertical, 6)
         }

@@ -8,6 +8,7 @@ public struct Inspection: Sendable {
     public let profile: ProvisioningProfile?
     public let entitlements: Entitlements?
     public let plugins: [BundleInfo]
+    public let archive: ArchiveInfo?
     public let warnings: [String]
 
     public init(
@@ -17,6 +18,7 @@ public struct Inspection: Sendable {
         profile: ProvisioningProfile? = nil,
         entitlements: Entitlements? = nil,
         plugins: [BundleInfo] = [],
+        archive: ArchiveInfo? = nil,
         warnings: [String] = []
     ) {
         self.source = source
@@ -25,6 +27,7 @@ public struct Inspection: Sendable {
         self.profile = profile
         self.entitlements = entitlements
         self.plugins = plugins
+        self.archive = archive
         self.warnings = warnings
     }
 
@@ -144,6 +147,37 @@ public struct ProvisioningProfile: Sendable {
         self.devicesCount = devicesCount
         self.provisionsAllDevices = provisionsAllDevices
         self.platform = platform
+    }
+}
+
+public struct ArchiveInfo: Sendable {
+    public let creationDate: Date?
+    public let schemeName: String?
+    public let name: String?
+    public let archiveVersion: Int?
+    public let signingIdentity: String?
+    public let teamIdentifier: String?
+    public let applicationPath: String?
+    public let dSYMCount: Int
+
+    public init(
+        creationDate: Date? = nil,
+        schemeName: String? = nil,
+        name: String? = nil,
+        archiveVersion: Int? = nil,
+        signingIdentity: String? = nil,
+        teamIdentifier: String? = nil,
+        applicationPath: String? = nil,
+        dSYMCount: Int = 0
+    ) {
+        self.creationDate = creationDate
+        self.schemeName = schemeName
+        self.name = name
+        self.archiveVersion = archiveVersion
+        self.signingIdentity = signingIdentity
+        self.teamIdentifier = teamIdentifier
+        self.applicationPath = applicationPath
+        self.dSYMCount = dSYMCount
     }
 }
 
