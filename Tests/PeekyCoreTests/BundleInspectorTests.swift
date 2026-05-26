@@ -51,6 +51,17 @@ struct BundleInspectorTests {
         print("✓ Display Name: \(inspection.bundle?.displayName ?? "?")")
         print("✓ Version: \(inspection.bundle?.shortVersion ?? "?")")
         print("✓ Min OS: \(inspection.bundle?.minimumOSVersion ?? "?")")
+        if let signing = inspection.signing {
+            print("✓ Signing Identity: \(signing.signingIdentity ?? "—")")
+            print("✓ Team ID: \(signing.teamIdentifier ?? "—")")
+            print("✓ Ad-hoc: \(signing.isAdHoc)")
+            print("✓ Cert chain (\(signing.certificateChain.count)):")
+            for (i, cert) in signing.certificateChain.enumerated() {
+                let org = cert.organization.map { " — \($0)" } ?? ""
+                let exp = cert.notAfter.map { " (exp \(ISO8601DateFormatter().string(from: $0).prefix(10)))" } ?? ""
+                print("    [\(i)] \(cert.commonName)\(org)\(exp)")
+            }
+        }
         print("✓ Profile: \(inspection.profile?.name ?? "—")")
         print("✓ Team: \(inspection.profile?.teamName ?? "—")")
         print("✓ Entitlements: \(inspection.entitlements?.raw.count ?? 0) keys")

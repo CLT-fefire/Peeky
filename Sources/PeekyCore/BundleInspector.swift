@@ -9,6 +9,10 @@ public enum BundleInspector {
     public static func inspect(bundleAt url: URL, recurseIntoPlugins: Bool = true) throws -> Inspection {
         let info = try readBundleInfo(at: url)
         let (profile, profileEntitlements) = readEmbeddedProfile(in: url)
+        let (signing, signingEntitlements) = SignatureReader.read(bundleAt: url)
+        // 임베디드 프로파일의 entitlements가 우선, 없으면 코드사인 entitlements 사용.
+        let entitlements = profileEntitlements ?? signingEntitlements
+
         let warnings = profile == nil
             ? (hasEmbeddedProfileSlot(in: url) ? ["임베디드 프로파일 디코드 실패"] : [])
             : []
@@ -22,9 +26,9 @@ public enum BundleInspector {
         return Inspection(
             source: source,
             bundle: info,
-            signing: nil,
+            signing: signing,
             profile: profile,
-            entitlements: profileEntitlements,
+            entitlements: entitlements,
             plugins: pluginInfos,
             warnings: warnings
         )

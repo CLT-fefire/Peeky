@@ -12,6 +12,9 @@ struct InspectionView: View {
                 if let bundle = inspection.bundle {
                     bundleCard(bundle)
                 }
+                if let signing = inspection.signing {
+                    signingCard(signing)
+                }
                 if let profile = inspection.profile {
                     profileCard(profile)
                 }
@@ -95,6 +98,51 @@ struct InspectionView: View {
                 }
             }
             .padding(.vertical, 6)
+        }
+    }
+
+    private func signingCard(_ signing: SigningInfo) -> some View {
+        GroupBox(signing.isAdHoc ? "Code Signing (ad-hoc)" : "Code Signing") {
+            VStack(alignment: .leading, spacing: 6) {
+                row("Identifier", signing.identifier)
+                row("Team ID", signing.teamIdentifier)
+                row("Signing Identity", signing.signingIdentity)
+                if !signing.certificateChain.isEmpty {
+                    Divider().padding(.vertical, 4)
+                    Text("Certificate Chain")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                    ForEach(Array(signing.certificateChain.enumerated()), id: \.offset) { idx, cert in
+                        certificateRow(idx: idx, cert: cert)
+                    }
+                }
+            }
+            .padding(.vertical, 6)
+        }
+    }
+
+    private func certificateRow(idx: Int, cert: SigningInfo.Certificate) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            HStack(alignment: .firstTextBaseline) {
+                Text("\(idx)")
+                    .font(.caption.monospaced())
+                    .foregroundStyle(.secondary)
+                    .frame(width: 18, alignment: .trailing)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(cert.commonName)
+                        .font(.callout)
+                    if let org = cert.organization {
+                        Text(org)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    if let notAfter = cert.notAfter {
+                        Text("Expires \(Self.dateFormatter.string(from: notAfter))")
+                            .font(.caption2)
+                            .foregroundStyle(.tertiary)
+                    }
+                }
+            }
         }
     }
 
