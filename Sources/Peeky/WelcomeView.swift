@@ -2,11 +2,14 @@ import SwiftUI
 import AppKit
 
 /// 호스트 앱 메인 화면 — Quick Look 익스텐션 활성화 가이드 + 빠른 액션.
+///
+/// 디자인: macOS 26 Liquid Glass + 4-tier 시멘틱 컬러 (InspectionView와 일관).
+/// 마스코트 hero + step 가이드 + 지원 파일 + 격리 해제 안내 + GitHub 액션.
 struct WelcomeView: View {
     var body: some View {
-        GlassEffectContainer(spacing: 18) {
+        GlassEffectContainer(spacing: 14) {
             ScrollView {
-                VStack(alignment: .leading, spacing: 18) {
+                VStack(alignment: .leading, spacing: 14) {
                     hero
                     actionsRow
                     stepsCard
@@ -22,12 +25,12 @@ struct WelcomeView: View {
     // MARK: - Hero
 
     private var hero: some View {
-        HStack(alignment: .center, spacing: 18) {
+        HStack(alignment: .center, spacing: 20) {
             mascot
-            VStack(alignment: .leading, spacing: 6) {
+            VStack(alignment: .leading, spacing: 4) {
                 Text("Peeky")
-                    .font(.system(size: 42, weight: .bold))
-                Text("스페이스바 한 번으로 .app .appex .ipa .mobileprovision 들여다보기")
+                    .font(.system(size: 40, weight: .bold))
+                Text("스페이스바 한 번으로 `.app` `.appex` `.ipa` `.mobileprovision` 들여다보기")
                     .font(.title3)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
@@ -40,7 +43,7 @@ struct WelcomeView: View {
     private var mascot: some View {
         Image(nsImage: NSApp.applicationIconImage ?? NSImage())
             .resizable()
-            .frame(width: 96, height: 96)
+            .frame(width: 88, height: 88)
             .shadow(color: .black.opacity(0.15), radius: 8, y: 4)
     }
 
@@ -54,7 +57,7 @@ struct WelcomeView: View {
                 Label("Quick Look 익스텐션 설정 열기", systemImage: "gearshape.fill")
             }
             .buttonStyle(.glassProminent)
-            .tint(.blue)
+            .tint(.accentColor)
 
             Button {
                 openGitHub()
@@ -68,7 +71,7 @@ struct WelcomeView: View {
     // MARK: - Steps
 
     private var stepsCard: some View {
-        Card(title: "사용 시작", icon: "list.number", tint: .blue) {
+        Card(title: "사용 시작", icon: "list.number", accent: .primary) {
             VStack(alignment: .leading, spacing: 10) {
                 stepRow(number: 1, text: "이 앱을 `/Applications/`로 옮기세요.")
                 stepRow(number: 2, text: "위의 **Quick Look 익스텐션 설정 열기** 버튼을 눌러 시스템 설정에서 Peeky를 켜세요.")
@@ -80,36 +83,36 @@ struct WelcomeView: View {
     // MARK: - Supported types
 
     private var supportedTypesCard: some View {
-        Card(title: "지원 파일", icon: "doc.badge.checkmark.fill", tint: .green) {
-            VStack(alignment: .leading, spacing: 6) {
-                typeRow(ext: ".app", desc: "macOS / iOS 애플리케이션 번들", symbol: "app.fill", tint: .blue)
-                typeRow(ext: ".appex", desc: "App Extension (Share / Widget / NSE 등)", symbol: "puzzlepiece.extension.fill", tint: .pink)
-                typeRow(ext: ".ipa", desc: "iOS 앱 아카이브 (디스크 추출 없이 검사)", symbol: "iphone", tint: .indigo)
-                typeRow(ext: ".xcarchive", desc: "Xcode 아카이브 (dSYM 유무 포함)", symbol: "archivebox.fill", tint: .purple)
-                typeRow(ext: ".mobileprovision / .provisionprofile", desc: "프로비저닝 프로파일", symbol: "doc.badge.gearshape.fill", tint: .teal)
+        Card(title: "지원 파일", icon: "doc.badge.checkmark.fill", accent: .secure) {
+            VStack(alignment: .leading, spacing: 8) {
+                typeRow(ext: ".app", desc: "macOS / iOS 애플리케이션 번들", symbol: "app.fill")
+                typeRow(ext: ".appex", desc: "App Extension (Share / Widget / NSE 등)", symbol: "puzzlepiece.extension.fill")
+                typeRow(ext: ".ipa", desc: "iOS 앱 아카이브 (디스크 추출 없이 검사)", symbol: "iphone")
+                typeRow(ext: ".xcarchive", desc: "Xcode 아카이브 (dSYM 유무 포함)", symbol: "archivebox.fill")
+                typeRow(ext: ".mobileprovision / .provisionprofile", desc: "프로비저닝 프로파일", symbol: "doc.badge.gearshape.fill")
             }
         }
     }
 
-    private func typeRow(ext: String, desc: String, symbol: String, tint: Color) -> some View {
-        HStack(spacing: 12) {
+    private func typeRow(ext: String, desc: String, symbol: String) -> some View {
+        HStack(spacing: 10) {
             Image(systemName: symbol)
-                .foregroundStyle(tint)
-                .frame(width: 22)
+                .foregroundStyle(.tint)
+                .frame(width: 20)
             Text(ext)
-                .font(.callout.monospaced().weight(.medium))
-                .frame(width: 240, alignment: .leading)
+                .font(.system(.callout, design: .monospaced).weight(.medium))
+                .frame(width: 224, alignment: .leading)
             Text(desc)
                 .font(.callout)
                 .foregroundStyle(.secondary)
-            Spacer()
+            Spacer(minLength: 0)
         }
     }
 
     // MARK: - Quarantine
 
     private var quarantineCard: some View {
-        Card(title: "DMG로 처음 설치한 경우", icon: "shield.lefthalf.filled", tint: .orange) {
+        Card(title: "DMG로 처음 설치한 경우", icon: "shield.lefthalf.filled", accent: .warning) {
             VStack(alignment: .leading, spacing: 8) {
                 Text("서명되지 않은 빌드라 macOS가 격리(quarantine) 속성을 붙입니다. 터미널에서 한 번만 실행:")
                     .font(.callout)
@@ -141,9 +144,9 @@ struct WelcomeView: View {
         HStack(alignment: .top, spacing: 12) {
             Text("\(number)")
                 .font(.callout.weight(.semibold).monospacedDigit())
-                .frame(width: 26, height: 26)
+                .frame(width: 24, height: 24)
                 .foregroundStyle(.white)
-                .background(.blue, in: Circle())
+                .background(.tint, in: Circle())
             Text(.init(text))
                 .font(.body)
                 .fixedSize(horizontal: false, vertical: true)
@@ -176,12 +179,26 @@ struct WelcomeView: View {
     }
 }
 
+// MARK: - 4-tier semantic accent (InspectionView와 일관)
+
+private enum CardAccent {
+    case primary, secure, warning, neutral
+    var color: Color {
+        switch self {
+        case .primary: return .accentColor
+        case .secure: return .green
+        case .warning: return .orange
+        case .neutral: return .secondary
+        }
+    }
+}
+
 // MARK: - Card (Liquid Glass)
 
 private struct Card<Content: View>: View {
     let title: String
     let icon: String
-    let tint: Color
+    let accent: CardAccent
     @ViewBuilder let content: () -> Content
 
     var body: some View {
@@ -189,7 +206,7 @@ private struct Card<Content: View>: View {
             HStack(spacing: 8) {
                 Image(systemName: icon)
                     .font(.callout.weight(.semibold))
-                    .foregroundStyle(tint)
+                    .foregroundStyle(accent.color)
                 Text(title)
                     .font(.headline)
                 Spacer()
@@ -197,7 +214,7 @@ private struct Card<Content: View>: View {
             content()
         }
         .padding(16)
-        .glassEffect(.regular, in: .rect(cornerRadius: 16))
+        .glassEffect(.regular, in: .rect(cornerRadius: 14))
     }
 }
 
@@ -208,20 +225,21 @@ private struct CodeBlock: View {
     var body: some View {
         HStack {
             Text(text)
-                .font(.callout.monospaced())
+                .font(.system(.callout, design: .monospaced))
                 .textSelection(.enabled)
             Spacer()
             Button {
                 let pb = NSPasteboard.general
                 pb.clearContents()
                 pb.setString(text, forType: .string)
-                withAnimation { copied = true }
+                withAnimation(.easeOut(duration: 0.18)) { copied = true }
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
-                    withAnimation { copied = false }
+                    withAnimation(.easeIn(duration: 0.18)) { copied = false }
                 }
             } label: {
                 Image(systemName: copied ? "checkmark" : "doc.on.doc")
                     .foregroundStyle(copied ? .green : .secondary)
+                    .contentTransition(.symbolEffect(.replace))
             }
             .buttonStyle(.borderless)
             .help("복사")
