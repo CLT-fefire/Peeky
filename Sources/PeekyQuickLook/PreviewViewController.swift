@@ -29,7 +29,7 @@ final class PreviewViewController: NSViewController, QLPreviewingController {
         case "app", "appex":
             return try BundleInspector.inspect(bundleAt: url)
         case "ipa":
-            return Inspection(source: .ipa(url), warnings: ["IPA 지원은 Phase 6에서 구현 예정"])
+            return try IPAInspector.inspect(ipaAt: url)
         case "xcarchive":
             return Inspection(source: .xcarchive(url), warnings: ["xcarchive 지원은 Phase 7에서 구현 예정"])
         case "mobileprovision", "provisionprofile":
